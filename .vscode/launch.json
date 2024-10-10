@@ -1,26 +1,19 @@
 {
+  // launch.json for c++ for mac os
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "(gdb) Launch",
+      "name": "g++ - Build and debug active file",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/ass3",
+      "program": "${workspaceRoot}/app",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
-      "externalConsole": true,
-      "MIMode": "gdb",
-      "miDebuggerPath": "C:/Tools/MinGW/bin/gdb.exe",
-      "setupCommands": [
-        {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
-        }
-      ],
-      "preLaunchTask": "buildMyProgramm"
+      "externalConsole": false,
+      "MIMode": "lldb",
+      "preLaunchTask": "compile Debug"
     }
   ]
 }

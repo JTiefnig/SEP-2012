@@ -1,36 +1,52 @@
-CXX=g++
-CXXFLAGS=-c -Wall -g
-LDFLAGS=
-SOURCES = $(wildcard *.cpp)
-OBJECTS = ${SOURCES:.cpp=.o}
-BLD_DIR := bin/
-OBJDIR := objd
-TITLE= ass3
-ARCHIVE=$(TITLE).tar.gz
-PROJECT := SEP
+CXX = g++
+CXXFLAGS = -g -std=c++11
+INCFLAGS = $(addprefix -I,$(INCL))
 
+SRC = .
+OBJ = obj
+INCL = .
+SRCS = $(wildcard $(SRC)/*.cpp)
+OBJS = $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
 
-.PHONY : all clean debug valgrind archive
+BIN = app
+ARCHIVE = $(BIN).tar.gz
+PROJECT = SEP
 
-all: $(TITLE)
+DEPS = $(OBJS:.o=.d)
+DEPFLAGS = -MMD -MP
 
-$(TITLE): $(OBJECTS)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS)
+.PHONY: all clean debug valgrind valgrindbonus archive linecheck
 
-$(OBJDIR)/%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $<
+all: $(BIN)
 
-clean :
-	rm -f *.o $(TITLE)
+debug: CXXFLAGS += -g
+debug: $(BIN)
 
-debug : $(TITLE)
-	gdb ./$<
+$(BIN): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
 
-valgrind : $(TITLE)
-	valgrind --tool=memcheck --leak-check=full ./$<
+-include $(DEPS)
 
-valgrindbonus : $(TITLE)
-	valgrind --tool=memcheck --leak-check=full ./$< Ra1Nb1Bc1Qd1Ke1Bf1Ng1Rh1Pb2Pc2Pd2Pe2Pg2Ph2Pa2Pf2pb7pa7pc7pd7pe7pf7pg7ph7ra8nb8bc8qd8ke8bf8ng8rh8 -b
+$(OBJ)/%.o: $(SRC)/%.cpp | $(OBJ)
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) $(DEPFLAGS) -c $< -o $@
 
-linecheck: $(SOURCES)
-	wc -L $(SOURCES) $(wildcard *.h)
+$(OBJ)/%.d: $(SRC)/%.cpp | $(OBJ)
+	$(CXX) $(CXXFLAGS) $(INCFLAGS) -MM -MT "$(OBJ)/$(<:.cpp=.o) $(OBJ)/$(<:.cpp=.d)" $< > $@
+
+$(OBJ):
+	mkdir -p $@
+
+clean:
+	rm -rf $(OBJ)/* $(BIN)
+
+valgrind: $(BIN)
+	valgrind --tool=memcheck --leak-check=full ./$(BIN)
+
+valgrindbonus: $(BIN)
+	valgrind --tool=memcheck --leak-check=full ./$(BIN) Ra1Nb1Bc1Qd1Ke1Bf1Ng1Rh1Pb2Pc2Pd2Pe2Pg2Ph2Pa2Pf2pb7pa7pc7pd7pe7pf7pg7ph7ra8nb8bc8qd8ke8bf8ng8rh8 -b
+
+archive:
+	tar -czvf $(ARCHIVE) $(SRCS) $(wildcard *.h) Makefile
+
+linecheck: $(SRCS)
+	wc -L $(SRCS) $(wildcard *.h)
